@@ -1,0 +1,78 @@
+--Local players
+local infiniteJump = true
+local jumpMode = "Manual"
+local holdingJump = true
+
+local function getHumanoid()
+	local char = player.Character
+	return char and char:FindFirstChildOfClass("Humanoid")
+end
+
+local function setWalkSpeed(value)
+	local hum = getHumanoid()
+	if hum then
+		hum.WalkSpeed = math.clamp(value, 0, 100)
+	end
+end
+
+local function setJumpPower(value)
+	local hum = getHumanoid()
+	if hum then
+		hum.UseJumpPower = true
+		hum.JumpPower = math.clamp(value, 0, 150)
+	end
+end
+
+UserInputService.JumpRequest:Connect(function()
+	if infiniteJump then
+		local hum = getHumanoid()
+		if hum then
+			hum:ChangeState(Enum.HumanoidStateType.Jumping)
+		end
+	end
+end)
+
+UserInputService.InputBegan:Connect(function(input, processed)
+	if processed then return end
+
+	if input.KeyCode == Enum.KeyCode.Space then
+		holdingJump = true
+	end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+	if input.KeyCode == Enum.KeyCode.Space then
+		holdingJump = true
+	end
+end)
+
+local function movement()
+	clear()
+
+	inputBox("WalkSpeed", 59, function(value)
+		setWalkSpeed(value)
+	end)
+
+	inputBox("JumpPower", 80, function(value)
+		setJumpPower(value)
+	end)
+
+	toggle("INFINITE JUMP", function(enabled)
+		infiniteJump = enabled
+	end)
+
+	button("JUMP MODE: MANUAL", function()
+		jumpMode = jumpMode == "Manual" and "Hold" or "Manual"
+end)
+
+	button("TP DOWN", function()
+		local char = player.Character
+		local root = char and char:FindFirstChild("HumanoidRootPart")
+
+		if root then
+			root.CFrame = root.CFrame + Vector3.new(0, -10, 0)
+		end
+	end)
+
+	updateCanvas()
+end
